@@ -27,13 +27,13 @@ It pays on **repetitive / agentic** work (tool JSON, code edit, self-refine). It
 
 ## Status
 
-Parked notes from 2026-08-25 are in [`docs/PLAN.md`](docs/PLAN.md). Work starting 2026-08-26:
+Parked notes: [`docs/PLAN.md`](docs/PLAN.md). First A/B: [`docs/RESULTS-2026-08-26.md`](docs/RESULTS-2026-08-26.md).
 
-1. This repo (docs, benches, experiment configs).
-2. Stock-binary A/B: `--spec-type ngram-mod,draft-mtp` vs MTP-only on Qwen3.8 (new llama-swap **alias**, not a mutation of `qwen3.8-27b`).
+1. ~~This repo.~~
+2. ~~Stock-binary A/B: `ngram-mod,draft-mtp` vs MTP-only on Qwen3.8.~~ Warm-repeat **+42%** (43 → 62 t/s); cold path ~neutral; hard_reason no regression. Alias `qwen3.8-27b-ngram` exists; **not** preload.
 3. Custom SYCL llama.cpp build that matches b10488 Qwen3.8 numbers (gate: no suffix yet).
 4. Port `common/suffix-tree.{h,cpp}` from ik_llama onto current llama.cpp speculative API; `--spec-type suffix,draft-mtp` + optional corpus.
-5. gpt-oss-20b one-card sandbox if Qwen3.8 n-gram/suffix shows signal.
+5. gpt-oss-20b one-card sandbox if real agent traces still want a better-than-ngram corpus tree.
 
 See [`docs/SAFETY.md`](docs/SAFETY.md) before touching llama-swap or the cards.
 

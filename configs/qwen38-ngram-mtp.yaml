@@ -1,4 +1,4 @@
-# New llama-swap id only. Port 9020 is unused on Zeus as of 2026-08-26.
+# New llama-swap id only. Port 9026 (9020 is mistral-small, 9022 is glimmer).
 # Production qwen3.8-27b stays on 9016 with MTP-only.
 
 qwen3.8-27b-ngram:
@@ -6,7 +6,7 @@ qwen3.8-27b-ngram:
     - "qwen3.8-ngram"
   ttl: 0
   name: "Qwen3.8 27B Q8 (131k ngram-mod + MTP3) [experiment]"
-  proxy: "http://127.0.0.1:9020"
+  proxy: "http://127.0.0.1:9026"
   env:
     - "UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS=1"
     - "ZES_ENABLE_SYSMAN=1"
@@ -32,4 +32,4 @@ qwen3.8-27b-ngram:
     --spec-draft-n-max 3
     --metrics
     --host 127.0.0.1
-    --port 9020
+    --port 9026
