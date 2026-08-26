@@ -1,0 +1,27 @@
+# One-card sandbox. Do not layer-split. Not a replacement for gpt-oss-120b.
+
+gpt-oss-20b-ngram:
+  aliases:
+    - "gpt-oss-20b"
+  ttl: 0
+  name: "gpt-oss-20b Q8 (one B70, ngram-mod) [experiment]"
+  proxy: "http://127.0.0.1:9022"
+  env:
+    - "UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS=1"
+    - "ZES_ENABLE_SYSMAN=1"
+    - "GGML_SYCL_ENABLE_VMM=0"
+    - "ONEAPI_DEVICE_SELECTOR=level_zero:0"
+  cmd: |
+    C:\Users\jstaples2\AI\Runtimes\llama.cpp\b10488\llama-server.exe
+    -m "D:\AI\LLM\Models\unsloth\gpt-oss-20b-GGUF\gpt-oss-20b-Q8_0.gguf"
+    -ngl 99
+    -np 1
+    -c 32768
+    -t 16
+    --load-mode dio
+    -ub 2048
+    --jinja
+    --spec-type ngram-mod
+    --metrics
+    --host 127.0.0.1
+    --port 9022

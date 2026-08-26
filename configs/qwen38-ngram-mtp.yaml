@@ -1,0 +1,35 @@
+# New llama-swap id only. Port 9020 is unused on Zeus as of 2026-08-26.
+# Production qwen3.8-27b stays on 9016 with MTP-only.
+
+qwen3.8-27b-ngram:
+  aliases:
+    - "qwen3.8-ngram"
+  ttl: 0
+  name: "Qwen3.8 27B Q8 (131k ngram-mod + MTP3) [experiment]"
+  proxy: "http://127.0.0.1:9020"
+  env:
+    - "UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS=1"
+    - "ZES_ENABLE_SYSMAN=1"
+    - "GGML_SYCL_ENABLE_VMM=0"
+  cmd: |
+    C:\Users\jstaples2\AI\Runtimes\llama.cpp\b10488\llama-server.exe
+    -m "C:\models\bartowski\Qwen3.8-27B-GGUF\Qwen3.8-27B-Q8_0.gguf"
+    --mmproj "C:\models\bartowski\Qwen3.8-27B-GGUF\mmproj-F16.gguf"
+    --image-min-tokens 1024
+    -ngl 99
+    -np 1
+    -c 131072
+    -t 16
+    --load-mode dio
+    -ctk q4_0
+    -ctv q4_0
+    -b 2048
+    -ub 512
+    -fa on
+    --jinja
+    --reasoning off
+    --spec-type ngram-mod,draft-mtp
+    --spec-draft-n-max 3
+    --metrics
+    --host 127.0.0.1
+    --port 9020

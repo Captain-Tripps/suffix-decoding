@@ -1,0 +1,31 @@
+# Local llama.cpp clones and SYCL builds (too large; pin a remote instead)
+/vendor/
+/llama.cpp/
+/build/
+/out/
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.obj
+
+# Weights and run artifacts
+*.gguf
+*.safetensors
+*.bin
+results/*
+!results/.gitkeep
+*.jsonl
+*.log
+*.pid
+
+# Python / editors
+.venv/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

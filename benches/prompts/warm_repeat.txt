@@ -1,0 +1,1 @@
+Same task again, from scratch: write a Python function merge_sorted_lists(list1, list2) that merges two sorted lists into one sorted list. Include a docstring and a small example under if __name__ == "__main__. Return only the code.

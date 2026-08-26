@@ -1,0 +1,62 @@
+# Suffix decoding on llama.cpp (Intel Arc)
+
+Bring [SuffixDecoding](https://arxiv.org/abs/2411.04975) (NeurIPS 2025 Spotlight) to **mainline llama.cpp**, then measure it on dual **Intel Arc Pro B70** (Windows SYCL).
+
+vLLM already ships this via [Arctic Inference](https://github.com/snowflakedb/ArcticInference) (`speculative_config.method = "suffix"`). [ik_llama.cpp#1646](https://github.com/ikawrakow/ik_llama.cpp/pull/1646) has a CPU suffix tree. Mainline llama.cpp does not. That gap is the work.
+
+This repo is the **lab notebook + experiment harness**. The C++ port will live on a branch of `ggml-org/llama.cpp` and, if it works, go upstream. Do not treat this tree as a llama.cpp fork.
+
+## Hardware under test
+
+| | |
+|---|---|
+| Host | Zeus (Windows 11) |
+| GPUs | 2× Intel Arc Pro B70 (32 GB) |
+| Engine | llama.cpp SYCL **b10488** (`llama-server`) |
+| Router | llama-swap, exclusive one-model-at-a-time |
+| Primary target | Qwen3.8-27B Q8_0, both cards, 131k, MTP n-max 3 |
+| Sandbox | gpt-oss-20b Q8_0 (~12.1 GB), one card |
+
+Production defaults stay on stock b10488. Experiment aliases only.
+
+## What SuffixDecoding is
+
+Model-free speculative decoding: a **CPU suffix tree** over the prompt, the current generation, and (optionally) prior outputs proposes draft tokens. The target model verifies them in one forward pass. Output distribution is unchanged.
+
+It pays on **repetitive / agentic** work (tool JSON, code edit, self-refine). It does not pay on open chat. Paper 5.3× is AgenticSQL vs vanilla on H100, not a promise for Arc.
+
+## Status
+
+Parked notes from 2026-08-25 are in [`docs/PLAN.md`](docs/PLAN.md). Work starting 2026-08-26:
+
+1. This repo (docs, benches, experiment configs).
+2. Stock-binary A/B: `--spec-type ngram-mod,draft-mtp` vs MTP-only on Qwen3.8 (new llama-swap **alias**, not a mutation of `qwen3.8-27b`).
+3. Custom SYCL llama.cpp build that matches b10488 Qwen3.8 numbers (gate: no suffix yet).
+4. Port `common/suffix-tree.{h,cpp}` from ik_llama onto current llama.cpp speculative API; `--spec-type suffix,draft-mtp` + optional corpus.
+5. gpt-oss-20b one-card sandbox if Qwen3.8 n-gram/suffix shows signal.
+
+See [`docs/SAFETY.md`](docs/SAFETY.md) before touching llama-swap or the cards.
+
+## Layout
+
+```
+docs/          PLAN.md, SAFETY.md, hardware notes
+configs/       llama-swap experiment snippets (not the live service file)
+benches/       prompts and how to measure t/s + draft accept
+scripts/       local helpers (Windows / PowerShell)
+results/       gitignored run logs
+notes/         paper and implementation links
+```
+
+## Non-goals
+
+- Running ik_llama.cpp as the Zeus server
+- vLLM XPU on this Windows host
+- EAGLE-3 on gpt-oss before model-free spec is measured
+- Changing live `qwen3.8-27b` flags
+
+## License
+
+MIT. Suffix tree code ported from ik_llama.cpp remains MIT (ggml / ikawrakow lineage). Cite the paper if you publish numbers:
+
+Oliaro, Jia, Campos, Qiao. *SuffixDecoding: Extreme Speculative Decoding for Emerging AI Applications*. arXiv:2411.04975.
