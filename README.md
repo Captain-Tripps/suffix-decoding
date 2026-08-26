@@ -30,9 +30,9 @@ It pays on **repetitive / agentic** work (tool JSON, code edit, self-refine). It
 Parked notes: [`docs/PLAN.md`](docs/PLAN.md). First A/B: [`docs/RESULTS-2026-08-26.md`](docs/RESULTS-2026-08-26.md).
 
 1. ~~This repo.~~
-2. ~~Stock-binary A/B: `ngram-mod,draft-mtp` vs MTP-only on Qwen3.8.~~ Warm-repeat **+42%** (43 → 62 t/s); cold path ~neutral; hard_reason no regression. Alias `qwen3.8-27b-ngram` exists; **not** preload.
-3. Custom SYCL llama.cpp build that matches b10488 Qwen3.8 numbers (gate: no suffix yet).
-4. Port `common/suffix-tree.{h,cpp}` from ik_llama onto current llama.cpp speculative API; `--spec-type suffix,draft-mtp` + optional corpus.
+2. ~~Stock-binary A/B: `ngram-mod,draft-mtp` vs MTP-only on Qwen3.8.~~ Warm-repeat **+42%** (43 → 62 t/s); 3-cycle code **+45%**; JSON too short for extra lift; **refactor has no lift**. Alias `qwen3.8-27b-ngram` exists; **not** preload.
+3. Custom SYCL llama.cpp build. **Blocked:** Intel oneAPI (`icx`) is not installed. Winget has `Intel.OneAPI.BaseToolkit`. Gate: custom binary must match b10488 Qwen3.8 MTP t/s before we bench suffix.
+4. ~~Port `common/suffix-tree.{h,cpp}` onto b10488 speculative API.~~ Local branch `suffix-decoding` in `C:\Users\jstaples2\Projects\llama.cpp-suffix` (`--spec-type suffix,draft-mtp`). Not compiled yet.
 5. gpt-oss-20b one-card sandbox if real agent traces still want a better-than-ngram corpus tree.
 
 See [`docs/SAFETY.md`](docs/SAFETY.md) before touching llama-swap or the cards.
