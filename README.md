@@ -31,6 +31,8 @@ It pays on **repetitive / agentic** work (tool JSON, code edit, self-refine). It
 
 The steps below record the August work and its then-current state.
 
+The local b70fix build helpers are [`scripts/build-sycl-b70fix.cmd`](scripts/build-sycl-b70fix.cmd) and [`scripts/stage-runtime-b70fix.ps1`](scripts/stage-runtime-b70fix.ps1). They target the unpatched `llama.cpp-b70fix` source and its own side-by-side runtime directory; the September suffix benchmark used an isolated copy with the suffix patch applied.
+
 Parked notes: [`docs/PLAN.md`](docs/PLAN.md). First A/B: [`docs/RESULTS-2026-08-26.md`](docs/RESULTS-2026-08-26.md).
 
 1. ~~This repo.~~

@@ -1,5 +1,7 @@
 # oneAPI 2026 attempt — Level Zero adapter won't load (2026-08-26)
 
+**Final status:** The Level Zero failure described below was resolved the same day by bundling a working `umf.dll`. The gate test passed. The blocker table and options near the end preserve the interim investigation; they are not current recommendations.
+
 Installed **oneAPI 2026.0.0.193** (`winget Intel.OneAPI.Toolkit`, exit 0). Its SYCL
 headers have `intel_gpu_bmg_g31` (`0x0000000500800000`) + `intel_gpu_wcl`. Reverted
 the 4 shim patches in `llama.cpp-suffix` (back to clean `cb9f787`), updated
@@ -58,16 +60,16 @@ Custom binary matches/slightly beats stock. The 3x regression is gone — it was
 entirely the disabled B70 arch paths. `sycl-ls` now reports
 `Arc Pro B70 Graphics 20.2.0` over Level-Zero V2. Cleared to bench `--spec-type suffix`.
 
-## Status of the two toolchains
+## Interim status before the runtime bundle
 
 | | Level Zero | B70 arch detected | decode |
 |---|---|---|---|
 | oneAPI 2025.1.1 build | works | **no** (`unknown`) -> generic kernels | ~3x slow (5 t/s no-spec) |
 | oneAPI 2026.0.0 build | **broken** (adapter err 126) | yes (has enum) | can't load model |
 
-Neither is currently usable for benching suffix.
+At this point in the investigation, neither was usable for benching suffix. The runtime bundle described above then made the oneAPI 2026 build usable.
 
-## Options
+## Interim options (superseded by the fix above)
 
 - **A.** Debug the 2026 L0 adapter — repair/complete the 2026 toolkit install, or
   find the remaining missing runtime dep. No hardware risk.

@@ -1,5 +1,7 @@
 # `--spec-type suffix` benchmark (2026-08-26)
 
+**Later result:** Corpus tokenization was wired after this run. A [cold creative-prose test](RESULTS-2026-08-26-corpus.md) found no benefit, and the [September source retest](RESULTS-2026-09-25-b11190-qwen38.md) reproduced the suffix regression. The corpus and tuning ideas below describe the state of this August test.
+
 First real measurement of the ported suffix drafter. All four configs on the **same**
 custom oneAPI-2026 binary (kernels constant, only the CPU drafter changes), Qwen3.8-27B
 Q8_0, both B70s, prod flags. Prompts run in sequence in one server so the shared
@@ -44,8 +46,8 @@ beat suffix on code/extract/story."
 - **Tune it up:** `--spec-suffix-min-match-len ~16–24`, raise `--spec-suffix-*` prob
   thresholds so it only drafts on strong matches. Likely removes the regressions;
   unlikely to beat ngram-mod's warm numbers.
-- **Corpus preload** (`--spec-suffix-corpus`) — *still a stub* ("tokenizer wiring
-  pending"). This is the paper's actual global tree: pre-warm from prior agent tool
+- **Corpus preload** (`--spec-suffix-corpus`) was still a stub at the time of this run.
+  This is the paper's actual global tree: pre-warm from prior agent tool
   JSON / code so the *first* call in a session already drafts well. That is the one
   scenario the in-session ngram pool can't cover. Finishing the tokenizer wiring is
   the only path where suffix beats ngram here.

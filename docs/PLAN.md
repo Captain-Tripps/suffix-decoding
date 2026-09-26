@@ -1,5 +1,7 @@
 # SuffixDecoding on Zeus (dual Arc Pro B70) — talk-through, no hardware changes
 
+**Historical planning note:** The no-hardware-change restriction below was for the August 25 planning session. Later sessions ran the benchmarks documented in [the September results](RESULTS-2026-09-25-b11190-qwen38.md). Production suffix decoding remains unadopted.
+
 **Status (2026-08-25): parked.** User asked to save and revisit. Do not load models, restart llama-swap, or touch either B70 until a later session.
 
 This is a feasibility briefing, not an implementation ticket.

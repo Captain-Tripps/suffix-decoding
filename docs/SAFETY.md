@@ -5,7 +5,7 @@ The production llama-swap service is the daily driver. Suffix experiments must n
 ## Do
 
 - Add **new llama-swap ids** (aliases) that copy flags 1:1 and add spec types.
-- Point experiment ids at a **side-by-side** `llama-server.exe` if we build a custom SYCL binary. Never overwrite `C:\Users\jstaples2\AI\Runtimes\llama.cpp\b10488\`.
+- Point experiment ids at a **side-by-side** `llama-server.exe` if we build a custom SYCL binary. Never overwrite the current production runtime.
 - Unload backends when done (`POST /api/models/unload` or swap back to the daily id).
 - Keep exclusive routing (one model in VRAM). Dual concurrent loads previously exhausted host RAM.
 
@@ -23,7 +23,7 @@ The production llama-swap service is the daily driver. Suffix experiments must n
 |---|---|
 | llama-swap config | `C:\llama-swap\config.windows.yaml` |
 | llama-swap binary | `C:\llama-swap\llama-swap.exe` |
-| Production llama-server | `C:\Users\jstaples2\AI\Runtimes\llama.cpp\b10488\llama-server.exe` |
+| Production llama-server (September 2026) | `C:\Users\jstaples2\AI\Runtimes\llama.cpp\b11190-f16\llama-server.exe` |
 | Public endpoint | `http://100.89.126.50:8080/v1` |
 | Qwen3.8 Q8 | `C:\models\bartowski\Qwen3.8-27B-GGUF\Qwen3.8-27B-Q8_0.gguf` |
 | gpt-oss-20b | `D:\AI\LLM\Models\unsloth\gpt-oss-20b-GGUF\gpt-oss-20b-Q8_0.gguf` |
