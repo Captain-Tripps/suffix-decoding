@@ -44,6 +44,26 @@ The official Intel/ggml SYCL release (b10488) is built with a DPC++ that knows
 `bmg_g31`, so it keeps those paths. Secondary suspects: build-flag deltas vs the
 official release, or a post-b10488 master SYCL regression.
 
+## Option 2 follow-up (no-spec isolation) — 2026-08-26
+
+Ran both binaries with `--spec-type none`, same flags/prompts (`scripts/gate-test-nospec.ps1`).
+
+| | b10488 no-spec | custom no-spec | ratio |
+|---|---|---|---|
+| decode t/s (code/warm/reason) | **15.4** | **5.04** | 0.33x |
+| ms/token | ~65 | ~198 | |
+
+**Verdict: base decode itself is 3x slower in the custom build — speculation is not involved.**
+The MTP gate run's 14 t/s was MTP lifting a crippled ~5 t/s base ~2.8x via accepted
+drafts; the MTP/suffix verify path is actually fine. The regression is in the
+ggml-sycl compute kernels, consistent with the FA shim (B70 forced off oneDNN FA
+and off the 256-thread FA-vec path) and likely the Q8_0 MMVQ path too.
+
+The suffix port code is **not** implicated. Fix = build with a DPC++ that knows
+`intel_gpu_bmg_g31` (oneAPI 2025.2+/2026) and drop the shims.
+
+(`-fa off` stage errored — invalid combo: `-ctv q4_0` requires `-fa on`. Not a binary bug.)
+
 ## Next options
 
 1. **oneAPI 2025.2+ / 2026.0 DPC++** (has `intel_gpu_bmg_g31`), rebuild without the
