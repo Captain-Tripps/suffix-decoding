@@ -23,6 +23,9 @@ $env:Path = (@(
 $env:UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS = "1"
 $env:ZES_ENABLE_SYSMAN = "1"
 $env:GGML_SYCL_ENABLE_VMM = "0"
+# oneAPI 2026 DPC++ picks a non-Level-Zero UR adapter by default on this box;
+# force Level Zero so SYCL sees the B70s and their free memory correctly.
+$env:ONEAPI_DEVICE_SELECTOR = "level_zero:*"
 
 $args = @(
   "-m","C:\models\bartowski\Qwen3.8-27B-GGUF\Qwen3.8-27B-Q8_0.gguf",

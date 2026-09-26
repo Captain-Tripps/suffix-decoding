@@ -2,15 +2,15 @@
 setlocal enabledelayedexpansion
 call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
 
-rem --- oneAPI env ---
-rem The top-level setvars.bat dispatcher is broken on this box (winget install
-rem exited 1; its per-component loop fails with "'vars.bat' is not recognized").
-rem The component vars.bat scripts themselves work, so call them directly.
-rem Intel's VS detector also only knows 2017/2019/2022, not VS 18 (2026), so
-rem point VS2022INSTALLDIR at the Build Tools install.
+rem --- oneAPI env (2026.0) ---
+rem The top-level setvars.bat dispatcher is broken on this box (its per-component
+rem loop fails with "'vars.bat' is not recognized"). The component vars.bat
+rem scripts work when called directly, deps (tbb/umf) before compiler.
+rem Intel's VS detector also needs VSxxxxINSTALLDIR for VS 18 (2026).
+set "VS2026INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools"
 set "VS2022INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools"
 set "ONEAPI=C:\Program Files (x86)\Intel\oneAPI"
-for %%C in (compiler tbb dnnl mkl umf ocloc dpl) do (
+for %%C in (tbb umf dnnl mkl dpl ocloc compiler) do (
   if exist "%ONEAPI%\%%C\latest\env\vars.bat" call "%ONEAPI%\%%C\latest\env\vars.bat" >nul 2>&1
 )
 where icx >nul 2>&1 || (echo ERROR: icx not on PATH after oneAPI env setup & exit /b 1)
