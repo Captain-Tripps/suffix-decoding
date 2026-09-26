@@ -1,0 +1,43 @@
+@echo off
+setlocal enabledelayedexpansion
+call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+
+rem --- oneAPI env ---
+rem The top-level setvars.bat dispatcher is broken on this box (winget install
+rem exited 1; its per-component loop fails with "'vars.bat' is not recognized").
+rem The component vars.bat scripts themselves work, so call them directly.
+rem Intel's VS detector also only knows 2017/2019/2022, not VS 18 (2026), so
+rem point VS2022INSTALLDIR at the Build Tools install.
+set "VS2022INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools"
+set "ONEAPI=C:\Program Files (x86)\Intel\oneAPI"
+for %%C in (compiler tbb dnnl mkl umf ocloc dpl) do (
+  if exist "%ONEAPI%\%%C\latest\env\vars.bat" call "%ONEAPI%\%%C\latest\env\vars.bat" >nul 2>&1
+)
+where icx >nul 2>&1 || (echo ERROR: icx not on PATH after oneAPI env setup & exit /b 1)
+echo oneAPI compiler: & icx --version
+
+set SRC=C:\Users\jstaples2\Projects\llama.cpp-suffix
+set BUILD=%SRC%\build-sycl
+set DEST=C:\Users\jstaples2\AI\Runtimes\llama.cpp\suffix-sycl
+set ICX=%ONEAPI%\compiler\latest\bin\icx.exe
+
+cmake -B "%BUILD%" -S "%SRC%" -G Ninja ^
+  -DCMAKE_BUILD_TYPE=Release ^
+  -DGGML_SYCL=ON ^
+  -DGGML_SYCL_F16=ON ^
+  -DCMAKE_C_COMPILER=cl ^
+  -DCMAKE_CXX_COMPILER="%ICX%" ^
+  -DBUILD_SHARED_LIBS=ON ^
+  -DLLAMA_OPENSSL=OFF ^
+  -DCMAKE_CXX_FLAGS_RELEASE="/O2 /DNDEBUG"
+if errorlevel 1 exit /b 1
+
+cmake --build "%BUILD%" --config Release -j %NUMBER_OF_PROCESSORS% --target llama-server
+if errorlevel 1 exit /b 1
+
+if not exist "%DEST%" mkdir "%DEST%"
+copy /Y "%BUILD%\bin\*.exe" "%DEST%\"
+copy /Y "%BUILD%\bin\*.dll" "%DEST%\"
+echo Built to %DEST%
+dir "%DEST%\llama-server.exe"
+endlocal

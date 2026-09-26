@@ -31,8 +31,8 @@ Parked notes: [`docs/PLAN.md`](docs/PLAN.md). First A/B: [`docs/RESULTS-2026-08-
 
 1. ~~This repo.~~
 2. ~~Stock-binary A/B: `ngram-mod,draft-mtp` vs MTP-only on Qwen3.8.~~ Warm-repeat **+42%** (43 → 62 t/s); 3-cycle code **+45%**; JSON too short for extra lift; **refactor has no lift**. Alias `qwen3.8-27b-ngram` exists; **not** preload.
-3. Custom SYCL llama.cpp build. **Blocked:** Intel oneAPI (`icx`) is not installed. Winget has `Intel.OneAPI.BaseToolkit`. Gate: custom binary must match b10488 Qwen3.8 MTP t/s before we bench suffix.
-4. ~~Port `common/suffix-tree.{h,cpp}` onto b10488 speculative API.~~ Local branch `suffix-decoding` in `C:\Users\jstaples2\Projects\llama.cpp-suffix` (`--spec-type suffix,draft-mtp`). Not compiled yet.
+3. ~~Custom SYCL llama.cpp build.~~ **Built 2026-08-26.** oneAPI 2025.1.1 installed (winget `Intel.OneAPI.Toolkit` exited 1 but components are usable); top-level `setvars.bat` dispatcher is broken (`'vars.bat' is not recognized` per component) so `scripts/build-sycl.cmd` calls the component `vars.bat` scripts directly and sets `VS2022INSTALLDIR` for VS 18. Binary at `C:\Users\jstaples2\AI\Runtimes\llama.cpp\suffix-sycl\` (commit `cb9f787`). `--spec-type` exposes `suffix`; flags `--spec-suffix-{n-max,max-depth,min-match-len,corpus}`. Corpus preload is still a stub ("tokenizer wiring pending").
+4. ~~Port `common/suffix-tree.{h,cpp}` onto b10488 speculative API.~~ Local branch `suffix-decoding` in `C:\Users\jstaples2\Projects\llama.cpp-suffix` (`--spec-type suffix,draft-mtp`). Compiled. **Next: gate test** — custom binary must match stock b10488 Qwen3.8 MTP t/s before benching suffix (needs a card; not yet run).
 5. gpt-oss-20b one-card sandbox if real agent traces still want a better-than-ngram corpus tree.
 
 See [`docs/SAFETY.md`](docs/SAFETY.md) before touching llama-swap or the cards.
