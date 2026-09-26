@@ -31,6 +31,33 @@ Consequences:
 Installed Intel Arc driver: **32.0.101.8805** (dated 2026-07-06). `ze_loader.dll`
 present in DriverStore and resolvable.
 
+## RESOLVED — root cause was a corrupt install, not the driver
+
+`winget Intel.OneAPI.Toolkit` left **`compiler\2026.0\bin\umf.dll` as a 0-byte file**
+(also `umf.lib`; only those two). `ur_adapter_level_zero.dll` imports `UMF.dll` and
+Windows resolves a module's imports from its own directory first -> got the 0-byte
+stub -> error 126 -> UR loader silently fell back to OpenCL. `ur_adapter_opencl.dll`
+has no UMF dependency, which is why only it loaded.
+
+Fix (no admin, no reinstall, no driver update): `scripts/stage-runtime.ps1` bundles
+the oneAPI 2026 runtime next to `llama-server.exe` (b10488-style), pulling a good
+`umf.dll` from the `umf\1.1` component and `libhwloc-15.dll` from `tcm\1.5`. Wired
+into `build-sycl.cmd`. GPU driver 32.0.101.8805 (2026-07-06) was fine all along —
+stock b10488 uses Level Zero V2 against it.
+
+### Gate test PASSED (2026-08-26, oneAPI 2026 build + runtime bundle)
+
+| Prompt | b10488 MTP n3 | custom 2026 MTP n3 |
+|---|---|---|
+| easy_count  | 43.98 | **45.0** |
+| hard_code   | 43.41 | **44.1** |
+| warm_repeat | 43.26 | **44.0** |
+| hard_reason | 32.35 | **34.1** |
+
+Custom binary matches/slightly beats stock. The 3x regression is gone — it was
+entirely the disabled B70 arch paths. `sycl-ls` now reports
+`Arc Pro B70 Graphics 20.2.0` over Level-Zero V2. Cleared to bench `--spec-type suffix`.
+
 ## Status of the two toolchains
 
 | | Level Zero | B70 arch detected | decode |

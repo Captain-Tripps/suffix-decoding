@@ -10,21 +10,14 @@ $port = 9099
 $swap = "http://100.89.126.50:8080"
 $restoreModel = "gpt-oss-120b"
 
-$oneapi = "C:\Program Files (x86)\Intel\oneAPI"
-$env:Path = (@(
-  "$oneapi\compiler\latest\bin",
-  "$oneapi\mkl\latest\bin",
-  "$oneapi\dnnl\latest\bin",
-  "$oneapi\tbb\latest\bin",
-  "$oneapi\umf\latest\bin",
-  "$oneapi\ocloc\latest\bin",
-  (Split-Path $exe -Parent)
-) -join ";") + ";" + $env:Path
+# The binary is self-contained (scripts/stage-runtime.ps1 bundled the oneAPI 2026
+# runtime next to the exe with a good umf.dll). Do NOT put oneAPI Program Files
+# dirs on PATH - compiler\2026.0\bin\umf.dll is a broken 0-byte file from the
+# install and would break the Level Zero adapter. Just the exe's own dir + ocloc.
+$env:Path = (Split-Path $exe -Parent) + ";C:\Program Files (x86)\Intel\oneAPI\ocloc\latest\bin;" + $env:Path
 $env:UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS = "1"
 $env:ZES_ENABLE_SYSMAN = "1"
 $env:GGML_SYCL_ENABLE_VMM = "0"
-# oneAPI 2026 DPC++ picks a non-Level-Zero UR adapter by default on this box;
-# force Level Zero so SYCL sees the B70s and their free memory correctly.
 $env:ONEAPI_DEVICE_SELECTOR = "level_zero:*"
 
 $args = @(
@@ -46,6 +39,16 @@ $prompts = @(
   @{ name="warm_repeat"; text="Same task again, from scratch: write a complete Python function that merges two sorted lists into one sorted list without using heapq or sort. Include a brief comment. No extra prose."; n=180 },
   @{ name="hard_reason"; text="A farmer has 17 sheep. All but 9 die. How many are left? Give a one-sentence explanation then the number."; n=64 }
 )
+
+# Free the cards: unload whatever llama-swap has loaded, wait for the child
+# llama-server to exit and the B70 driver to release VRAM (30+ GB for 120b).
+Write-Host "unloading llama-swap model..."
+try { Invoke-WebRequest "$swap/api/models/unload" -Method POST -UseBasicParsing -TimeoutSec 20 | Out-Null } catch {}
+$dl = (Get-Date).AddMinutes(3)
+do { Start-Sleep 4; try { $run = @((Invoke-RestMethod "$swap/running" -TimeoutSec 5).running) } catch { $run = @() } }
+while ($run.Count -gt 0 -and (Get-Date) -lt $dl)
+Write-Host "llama-swap idle; waiting 25s for VRAM release..."
+Start-Sleep 25
 
 $srvLog = Join-Path $outDir "gate-suffixbin-server-$stamp.log"
 Write-Host "launching custom server on :$port  (log: $srvLog)"

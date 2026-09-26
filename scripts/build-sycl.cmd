@@ -38,6 +38,13 @@ if errorlevel 1 exit /b 1
 if not exist "%DEST%" mkdir "%DEST%"
 copy /Y "%BUILD%\bin\*.exe" "%DEST%\"
 copy /Y "%BUILD%\bin\*.dll" "%DEST%\"
+
+rem Bundle the oneAPI 2026 runtime DLLs next to the exe (b10488-style) so the
+rem binary is self-contained and never hits the broken 0-byte
+rem compiler\2026.0\bin\umf.dll that this install shipped.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0stage-runtime.ps1"
+if errorlevel 1 exit /b 1
+
 echo Built to %DEST%
 dir "%DEST%\llama-server.exe"
 endlocal
